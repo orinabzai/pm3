@@ -10,7 +10,10 @@
       "Bash(cd /tmp/pm3-test && pm3 start 2>&1)",
       "Bash(cd /tmp/pm3-test && pm3 list 2>&1)",
       "Bash(cd /tmp/pm3-test && pm3 restart 2>&1)",
-      "Bash(echo exit: $?:*)"
+      "Bash(echo exit: $?:*)",
+      "Bash(cd /c/projects/pm3 && npm run build 2>&1)",
+      "Bash(cd /c/projects/pm3 && npx tsc --project tsconfig.json 2>&1)",
+      "Bash(cd /c/projects/pm3 && node dist/cli.js --help 2>&1)"
     ]
   }
 }

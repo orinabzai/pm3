@@ -6,6 +6,7 @@ export interface AppConfig {
   script: string;
   cwd?: string;
   args?: string;
+  log?: string;
 }
 
 export interface Pm3Config {
@@ -17,6 +18,7 @@ export interface ResolvedAppConfig {
   script: string;
   cwd: string;
   args: string;
+  log?: string;
 }
 
 export interface ResolvedConfig {
@@ -70,11 +72,16 @@ export function discoverConfig(startDir?: string): ResolvedConfig {
 
     const resolvedScript = path.resolve(resolvedCwd, app.script);
 
+    const resolvedLog = app.log
+      ? path.resolve(resolvedCwd, app.log)
+      : undefined;
+
     apps.push({
       name: app.name,
       script: resolvedScript,
       cwd: resolvedCwd,
       args: app.args ?? '',
+      log: resolvedLog,
     });
   }
 

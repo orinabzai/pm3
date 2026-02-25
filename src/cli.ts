@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { discoverConfig } from './config.js';
 import { loadState, saveState, validateState } from './state.js';
-import { startApp, stopApp, restartApp, listApps } from './manager.js';
+import { startApp, stopApp, restartApp, listApps, logApps } from './manager.js';
 import type { ResolvedAppConfig } from './config.js';
 
 function findApp(apps: ResolvedAppConfig[], name: string): ResolvedAppConfig {
@@ -91,6 +91,16 @@ function commandList(): void {
   }
 }
 
+async function commandLog(name?: string): Promise<void> {
+  try {
+    const config = discoverConfig();
+    await logApps(config.apps, name);
+  } catch (e) {
+    console.error((e as Error).message);
+    process.exit(1);
+  }
+}
+
 yargs(hideBin(process.argv))
   .scriptName('pm3')
   .usage('$0 <command> [name]')
@@ -118,7 +128,13 @@ yargs(hideBin(process.argv))
     () => {},
     () => commandList(),
   )
-  .demandCommand(1, 'Please specify a command: start, stop, restart, or list')
+  .command(
+    'log [name]',
+    'Show live log output',
+    (yargs) => yargs.positional('name', { type: 'string', describe: 'App name' }),
+    (argv) => commandLog(argv.name),
+  )
+  .demandCommand(1, 'Please specify a command: start, stop, restart, list, or log')
   .strict()
   .help()
   .parse();

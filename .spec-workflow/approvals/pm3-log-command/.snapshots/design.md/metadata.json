@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/pm3-log-command/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-02-25T22:32:28.994Z",
+      "trigger": "initial",
+      "approvalId": "approval_1772058748984_bz0tlim7o",
+      "approvalTitle": "pm3-log-command Design Document"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-02-25T22:33:09.907Z",
+      "trigger": "approved",
+      "approvalId": "approval_1772058748984_bz0tlim7o",
+      "approvalTitle": "pm3-log-command Design Document"
+    }
+  ]
+}

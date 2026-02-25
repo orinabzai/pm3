@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
+import { createInterface } from 'node:readline';
 import type { ResolvedAppConfig, ResolvedConfig } from './config.js';
 import { isProcessRunning } from './state.js';
 import type { Pm3State } from './state.js';
@@ -142,6 +143,58 @@ function formatUptime(startedAt: Date): string {
   if (hours < 24) return `${hours}h ${minutes % 60}m`;
   const days = Math.floor(hours / 24);
   return `${days}d ${hours % 24}h`;
+}
+
+export async function logApps(apps: ResolvedAppConfig[], name?: string): Promise<void> {
+  const targets = name
+    ? apps.filter(a => a.name === name)
+    : apps;
+
+  if (name && targets.length === 0) {
+    console.error(`Error: app "${name}" not found in config`);
+    process.exit(1);
+  }
+
+  const loggable = targets.filter(a => a.log);
+  if (loggable.length === 0) {
+    console.error(name
+      ? `Error: app "${name}" has no log script configured`
+      : 'Error: no apps have a log script configured');
+    process.exit(1);
+  }
+
+  const children: ChildProcess[] = [];
+
+  const cleanup = () => {
+    for (const child of children) {
+      try { child.kill(); } catch {}
+    }
+    process.exit(0);
+  };
+
+  process.on('SIGINT', cleanup);
+
+  if (loggable.length === 1) {
+    const app = loggable[0];
+    const child = spawn(app.log!, { cwd: app.cwd, shell: true, stdio: ['ignore', 'inherit', 'inherit'] });
+    children.push(child);
+    await new Promise<void>((resolve) => child.on('close', () => resolve()));
+  } else {
+    const promises: Promise<void>[] = [];
+    for (const app of loggable) {
+      const child = spawn(app.log!, { cwd: app.cwd, shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      children.push(child);
+
+      const rlOut = createInterface({ input: child.stdout! });
+      rlOut.on('line', (line) => console.log(`[${app.name}] ${line}`));
+
+      const rlErr = createInterface({ input: child.stderr! });
+      rlErr.on('line', (line) => console.error(`[${app.name}] ${line}`));
+
+      promises.push(new Promise<void>((resolve) => child.on('close', () => resolve())));
+    }
+    await Promise.all(promises);
+  }
 }
 
 function sleep(ms: number): Promise<void> {
