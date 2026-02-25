@@ -8,8 +8,8 @@
     "pm3": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "tsc -s tsconfig.json",
+    "rebuild": "tsc -s tsconfig.json -f -v"
   },
   "dependencies": {
     "yargs": "^17.7.2"
