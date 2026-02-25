@@ -1,6 +1,6 @@
 {
   "filePath": ".spec-workflow/specs/pm3-log-command/tasks.md",
-  "currentVersion": 2,
+  "currentVersion": 4,
   "snapshots": [
     {
       "version": 1,
@@ -17,6 +17,22 @@
       "trigger": "approved",
       "approvalId": "approval_1772058873956_8jn73uxd8",
       "approvalTitle": "pm3-log-command Tasks Document"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2026-02-25T22:48:31.965Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1772059639091_3dikksege",
+      "approvalTitle": "Updated Tasks: Log file redirection + tail approach (4 tasks)"
+    },
+    {
+      "version": 4,
+      "filename": "snapshot-004.json",
+      "timestamp": "2026-02-25T22:50:26.363Z",
+      "trigger": "approved",
+      "approvalId": "approval_1772059767054_tr5us5njj",
+      "approvalTitle": "Revised Tasks: tail -f approach + tsc -b (4 tasks)"
     }
   ]
 }

@@ -1,4 +1,6 @@
 import { spawn, type ChildProcess } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import { createInterface } from 'node:readline';
 import type { ResolvedAppConfig, ResolvedConfig } from './config.js';
 import { isProcessRunning } from './state.js';
@@ -13,14 +15,27 @@ export function startApp(app: ResolvedAppConfig, state: Pm3State): Pm3State {
 
   const args = app.args ? app.args.split(/\s+/) : [];
 
+  let logFd: number | undefined;
   try {
+    if (app.log) {
+      fs.mkdirSync(path.dirname(app.log), { recursive: true });
+      logFd = fs.openSync(app.log, 'a');
+    }
+
     const child = spawn('node', [app.script, ...args], {
       cwd: app.cwd,
       detached: true,
-      stdio: 'ignore',
+      stdio: app.log && logFd !== undefined
+        ? ['ignore', logFd, logFd]
+        : 'ignore',
     });
 
     child.unref();
+
+    if (logFd !== undefined) {
+      fs.closeSync(logFd);
+      logFd = undefined;
+    }
 
     const pid = child.pid ?? null;
     if (pid === null) {
@@ -42,6 +57,9 @@ export function startApp(app: ResolvedAppConfig, state: Pm3State): Pm3State {
       startedAt: new Date().toISOString(),
     };
   } catch (e) {
+    if (logFd !== undefined) {
+      try { fs.closeSync(logFd); } catch {}
+    }
     console.error(`  Failed to start ${app.name}: ${(e as Error).message}`);
     state.apps[app.name] = {
       name: app.name,
@@ -158,8 +176,8 @@ export async function logApps(apps: ResolvedAppConfig[], name?: string): Promise
   const loggable = targets.filter(a => a.log);
   if (loggable.length === 0) {
     console.error(name
-      ? `Error: app "${name}" has no log script configured`
-      : 'Error: no apps have a log script configured');
+      ? `Error: app "${name}" has no log file configured`
+      : 'Error: no apps have a log file configured');
     process.exit(1);
   }
 
@@ -176,13 +194,13 @@ export async function logApps(apps: ResolvedAppConfig[], name?: string): Promise
 
   if (loggable.length === 1) {
     const app = loggable[0];
-    const child = spawn(app.log!, { cwd: app.cwd, shell: true, stdio: ['ignore', 'inherit', 'inherit'] });
+    const child = spawn('tail', ['-f', app.log!], { stdio: ['ignore', 'inherit', 'inherit'] });
     children.push(child);
     await new Promise<void>((resolve) => child.on('close', () => resolve()));
   } else {
     const promises: Promise<void>[] = [];
     for (const app of loggable) {
-      const child = spawn(app.log!, { cwd: app.cwd, shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      const child = spawn('tail', ['-f', app.log!], { stdio: ['ignore', 'pipe', 'pipe'] });
       children.push(child);
 
       const rlOut = createInterface({ input: child.stdout! });

@@ -13,7 +13,12 @@
       "Bash(echo exit: $?:*)",
       "Bash(cd /c/projects/pm3 && npm run build 2>&1)",
       "Bash(cd /c/projects/pm3 && npx tsc --project tsconfig.json 2>&1)",
-      "Bash(cd /c/projects/pm3 && node dist/cli.js --help 2>&1)"
+      "Bash(cd /c/projects/pm3 && node dist/cli.js --help 2>&1)",
+      "Bash(cd /c/projects/pm3 && npx tsc -b tsconfig.json 2>&1)",
+      "Bash(true:*)",
+      "Bash(cat:*)",
+      "Bash(cd /tmp/pm3-test && node /c/projects/pm3/dist/cli.js stop 2>&1)",
+      "mcp__spec-workflow-mcp__spec-status"
     ]
   }
 }
