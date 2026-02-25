@@ -124,12 +124,14 @@ export function listApps(config: ResolvedConfig, state: Pm3State): void {
   const nameWidth = Math.max(6, ...config.apps.map(a => a.name.length)) + 2;
   const statusWidth = 10;
   const pidWidth = 10;
+  const uptimeWidth = 12;
 
   const header =
     'Name'.padEnd(nameWidth) +
     'Status'.padEnd(statusWidth) +
     'PID'.padEnd(pidWidth) +
-    'Uptime';
+    'Uptime'.padEnd(uptimeWidth) +
+    'Log';
 
   console.log(header);
   console.log('-'.repeat(header.length + 10));
@@ -141,12 +143,14 @@ export function listApps(config: ResolvedConfig, state: Pm3State): void {
     const uptime = appState?.startedAt && status === 'running'
       ? formatUptime(new Date(appState.startedAt))
       : 'N/A';
+    const log = app.log ?? 'N/A';
 
     console.log(
       app.name.padEnd(nameWidth) +
       status.padEnd(statusWidth) +
       pid.padEnd(pidWidth) +
-      uptime
+      uptime.padEnd(uptimeWidth) +
+      log
     );
   }
 }

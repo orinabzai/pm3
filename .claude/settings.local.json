@@ -18,7 +18,8 @@
       "Bash(true:*)",
       "Bash(cat:*)",
       "Bash(cd /tmp/pm3-test && node /c/projects/pm3/dist/cli.js stop 2>&1)",
-      "mcp__spec-workflow-mcp__spec-status"
+      "mcp__spec-workflow-mcp__spec-status",
+      "Bash(cd /tmp/pm3-test && node /c/projects/pm3/dist/cli.js list 2>&1)"
     ]
   }
 }
