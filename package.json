@@ -1,0 +1,22 @@
+{
+  "name": "pm3",
+  "version": "1.0.0",
+  "description": "Lightweight, local-first process manager",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "pm3": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "@types/yargs": "^17.0.33",
+    "typescript": "^5.4.0"
+  }
+}

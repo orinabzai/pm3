@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__spec-workflow-mcp__spec-workflow-guide",
+      "mcp__spec-workflow-mcp__approvals",
+      "mcp__spec-workflow-mcp__log-implementation",
+      "Bash(cd C:/projects/pm3 && npm run build 2>&1)",
+      "Bash(cd:*)",
+      "Bash(cd C:/projects/pm3 && npm link 2>&1)",
+      "Bash(cd /tmp/pm3-test && pm3 start 2>&1)",
+      "Bash(cd /tmp/pm3-test && pm3 list 2>&1)",
+      "Bash(cd /tmp/pm3-test && pm3 restart 2>&1)",
+      "Bash(echo exit: $?:*)"
+    ]
+  }
+}

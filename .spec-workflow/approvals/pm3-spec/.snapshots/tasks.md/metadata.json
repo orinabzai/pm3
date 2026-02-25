@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/pm3-spec/tasks.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-02-25T22:09:04.099Z",
+      "trigger": "initial",
+      "approvalId": "approval_1772057344090_xjnrtx4h0",
+      "approvalTitle": "pm3-spec Tasks Document"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-02-25T22:09:57.969Z",
+      "trigger": "approved",
+      "approvalId": "approval_1772057344090_xjnrtx4h0",
+      "approvalTitle": "pm3-spec Tasks Document"
+    }
+  ]
+}

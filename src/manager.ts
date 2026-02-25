@@ -1,0 +1,149 @@
+import { spawn } from 'node:child_process';
+import type { ResolvedAppConfig, ResolvedConfig } from './config.js';
+import { isProcessRunning } from './state.js';
+import type { Pm3State } from './state.js';
+
+export function startApp(app: ResolvedAppConfig, state: Pm3State): Pm3State {
+  const existing = state.apps[app.name];
+  if (existing?.status === 'running' && existing.pid !== null && isProcessRunning(existing.pid)) {
+    console.log(`  ${app.name} is already running (PID ${existing.pid})`);
+    return state;
+  }
+
+  const args = app.args ? app.args.split(/\s+/) : [];
+
+  try {
+    const child = spawn('node', [app.script, ...args], {
+      cwd: app.cwd,
+      detached: true,
+      stdio: 'ignore',
+    });
+
+    child.unref();
+
+    const pid = child.pid ?? null;
+    if (pid === null) {
+      console.error(`  Failed to start ${app.name}: no PID returned`);
+      state.apps[app.name] = {
+        name: app.name,
+        pid: null,
+        status: 'stopped',
+        startedAt: null,
+      };
+      return state;
+    }
+
+    console.log(`  ${app.name} started (PID ${pid})`);
+    state.apps[app.name] = {
+      name: app.name,
+      pid,
+      status: 'running',
+      startedAt: new Date().toISOString(),
+    };
+  } catch (e) {
+    console.error(`  Failed to start ${app.name}: ${(e as Error).message}`);
+    state.apps[app.name] = {
+      name: app.name,
+      pid: null,
+      status: 'stopped',
+      startedAt: null,
+    };
+  }
+
+  return state;
+}
+
+export async function stopApp(name: string, state: Pm3State): Promise<Pm3State> {
+  const app = state.apps[name];
+  if (!app || app.status !== 'running' || app.pid === null) {
+    console.log(`  ${name} is not running`);
+    return state;
+  }
+
+  const pid = app.pid;
+
+  try {
+    process.kill(pid, 'SIGTERM');
+  } catch {
+    // Process already dead
+    state.apps[name] = { ...app, status: 'stopped', pid: null, startedAt: null };
+    console.log(`  ${name} stopped`);
+    return state;
+  }
+
+  // Wait up to 5 seconds for graceful shutdown
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    if (!isProcessRunning(pid)) {
+      state.apps[name] = { ...app, status: 'stopped', pid: null, startedAt: null };
+      console.log(`  ${name} stopped (PID ${pid})`);
+      return state;
+    }
+    await sleep(200);
+  }
+
+  // Force kill
+  try {
+    process.kill(pid, 'SIGKILL');
+  } catch {
+    // Already dead
+  }
+  state.apps[name] = { ...app, status: 'stopped', pid: null, startedAt: null };
+  console.log(`  ${name} killed (PID ${pid})`);
+  return state;
+}
+
+export async function restartApp(app: ResolvedAppConfig, state: Pm3State): Promise<Pm3State> {
+  const existing = state.apps[app.name];
+  if (existing?.status === 'running' && existing.pid !== null) {
+    state = await stopApp(app.name, state);
+  }
+  return startApp(app, state);
+}
+
+export function listApps(config: ResolvedConfig, state: Pm3State): void {
+  const nameWidth = Math.max(6, ...config.apps.map(a => a.name.length)) + 2;
+  const statusWidth = 10;
+  const pidWidth = 10;
+
+  const header =
+    'Name'.padEnd(nameWidth) +
+    'Status'.padEnd(statusWidth) +
+    'PID'.padEnd(pidWidth) +
+    'Uptime';
+
+  console.log(header);
+  console.log('-'.repeat(header.length + 10));
+
+  for (const app of config.apps) {
+    const appState = state.apps[app.name];
+    const status = appState?.status ?? 'stopped';
+    const pid = appState?.pid != null ? String(appState.pid) : 'N/A';
+    const uptime = appState?.startedAt && status === 'running'
+      ? formatUptime(new Date(appState.startedAt))
+      : 'N/A';
+
+    console.log(
+      app.name.padEnd(nameWidth) +
+      status.padEnd(statusWidth) +
+      pid.padEnd(pidWidth) +
+      uptime
+    );
+  }
+}
+
+function formatUptime(startedAt: Date): string {
+  const diff = Date.now() - startedAt.getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ${seconds % 60}s`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ${minutes % 60}m`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ${hours % 24}h`;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

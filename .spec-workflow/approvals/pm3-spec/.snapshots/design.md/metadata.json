@@ -1,0 +1,30 @@
+{
+  "filePath": ".spec-workflow/specs/pm3-spec/design.md",
+  "currentVersion": 3,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-02-25T22:02:57.086Z",
+      "trigger": "initial",
+      "approvalId": "approval_1772056977075_k108bk2ux",
+      "approvalTitle": "pm3-spec Design Document"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-02-25T22:06:56.971Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1772056977075_k108bk2ux",
+      "approvalTitle": "pm3-spec Design Document"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2026-02-25T22:07:51.093Z",
+      "trigger": "approved",
+      "approvalId": "approval_1772057257042_2i01hpnyd",
+      "approvalTitle": "pm3-spec Design Document (Revised)"
+    }
+  ]
+}
